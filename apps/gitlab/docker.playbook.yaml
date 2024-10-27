@@ -1,0 +1,66 @@
+# install_docker.yml
+
+- hosts: localhost
+  become: yes
+  tasks:
+    - name: Update apt and install prerequisites
+      apt:
+        update_cache: yes
+        name: "{{ item }}"
+        state: present
+      loop:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - software-properties-common
+        - git
+        - jq
+
+    - name: Add Docker’s official GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Set up the stable Docker repository
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
+        state: present
+
+    - name: Install Docker
+      apt:
+        name: docker-ce
+        state: present
+        update_cache: yes
+
+    - name: Start Docker
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Get the latest Docker Compose version
+      shell: "curl -s https://api.github.com/repos/docker/compose/releases/latest | jq -r '.tag_name'"
+      register: docker_compose_version
+      changed_when: false
+
+    - name: Download Docker Compose
+      get_url:
+        url: "https://github.com/docker/compose/releases/download/{{ docker_compose_version.stdout }}/docker-compose-linux-{{ ansible_architecture }}"
+        dest: /usr/local/bin/docker-compose
+        mode: '0755'
+
+    - name: Ensure Docker Compose binary is executable
+      file:
+        path: /usr/local/bin/docker-compose
+        mode: '0755'
+
+    - name: Clone the Docker Compose GitLab project repository
+      git:
+        repo: https://github.com/MaxOnceProject/GitLab-for-Docker.git
+        dest: /opt/GitLab-for-Docker  # Change this path if desired
+        update: yes
+
+    - name: Start the Docker containers using docker-compose
+      command: docker-compose up -d
+      args:
+        chdir: /opt/GitLab-for-Docker  # Ensure this is the same as the 'dest' path for the git clone
