@@ -1,0 +1,16 @@
+# install_docker.yml
+
+- hosts: localhost
+  become: yes
+  tasks:
+
+    - name: Clone the Docker Compose GitLab project repository
+      git:
+        repo: https://github.com/MaxOnceProject/GitLab-for-Docker.git
+        dest: /opt/GitLab-for-Docker  # Change this path if desired
+        update: yes
+
+    - name: Start the Docker containers using docker-compose
+      command: docker-compose up -d
+      args:
+        chdir: /opt/GitLab-for-Docker  # Ensure this is the same as the 'dest' path for the git clone

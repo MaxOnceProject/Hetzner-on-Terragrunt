@@ -5,3 +5,4 @@ services:
       - ./apps/:/apps
     environment:
       TF_VAR_HCLOUD_TOKEN:
+      TF_VAR_GITLAB_SERVER_LOGIN:

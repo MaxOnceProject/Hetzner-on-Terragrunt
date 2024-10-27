@@ -15,10 +15,15 @@ terraform {
     hcloud = {
       source = "hetznercloud/hcloud"
     }
+    ansible = {
+      source  = "ansible/ansible"
+    }
   }
 }
 provider "hcloud" {
   token = "${local.hcloud_token}"
+}
+provider "ansible" {
 }
 EOF
 }
