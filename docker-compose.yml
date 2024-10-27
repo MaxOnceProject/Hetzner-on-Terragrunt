@@ -1,0 +1,7 @@
+services:
+  hetzner:
+    image: alpine/terragrunt:latest
+    volumes:
+      - ./apps/:/apps
+    environment:
+      TF_VAR_HCLOUD_TOKEN:
